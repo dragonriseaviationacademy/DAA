@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Illustration on a Turbofan engine</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      padding: 10px;
+      overflow-x: hidden;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      overflow: hidden;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .speed-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .speed-control label {
+      font-size: 14px;
+      color: #4a5568;
+    }
+    
+    input[type="range"] {
+      width: 90px;
+      -webkit-appearance: none;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      outline: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #4299e1;
+      cursor: pointer;
+    }
+    
+    .checkbox-control {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .checkbox-control label {
+      font-size: 14px;
+      color: #4a5568;
+    }
+    
+    .engine-container {
+      position: relative;
+      background-color: #1a202c;
+      border-radius: 8px;
+      overflow: hidden;
+      width: 100%;
+      height: 0;
+      padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    }
+    
+    svg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      touch-action: manipulation;
+    }
+    
+    .info-panel {
+      margin-top: 15px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      position: relative;
+      display: none;
+    }
+    
+    .info-panel.active {
+      display: block;
+    }
+    
+    .info-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .info-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a202c;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #a0aec0;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+    }
+    
+    .info-description {
+      font-size: 14px;
+      line-height: 1.5;
+      color: #4a5568;
+    }
+    
+    .footer {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #4a5568;
+    }
+    
+    .footer h4 {
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+    
+    .footer ul {
+      list-style-position: inside;
+      margin-bottom: 12px;
+      padding-left: 5px;
+    }
+    
+    .footer li {
+      margin-bottom: 5px;
+    }
+    
+    .color-key {
+      margin-top: 12px;
+      padding: 12px;
+      background-color: #f7fafc;
+      border-radius: 6px;
+    }
+    
+    .color-key p {
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    
+    .color-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    
+    .color-box {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .color-blue-light {
+      background-color: #ADD8E6;
+    }
+    
+    .color-blue-dark {
+      background-color: #4682B4;
+    }
+    
+    .color-red {
+      background-color: #FF4500;
+    }
+    
+    .color-item span {
+      font-size: 13px;
+    }
+    
+    .color-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .note {
+      margin-top: 12px;
+      font-size: 12px;
+      font-style: italic;
+      color: #718096;
+    }
+
+    /* Adjustments for very small screens */
+    @media (max-width: 374px) {
+      .controls {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .info-title {
+        font-size: 16px;
+      }
+      
+      .info-description {
+        font-size: 13px;
+      }
+    }
+    
+    /* Make clickable elements more apparent */
+    .clickable {
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    
+    /* Enhanced mobile styles for better touch targets */
+    @media (max-width: 767px) {
+      .clickable {
+        stroke-width: 3px !important;
+      }
+      
+      input[type="range"] {
+        width: 120px;
+        height: 12px;
+      }
+      
+      input[type="range"]::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+      }
+      
+      .close-btn {
+        font-size: 28px;
+        width: 40px;
+        height: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 style="text-align: center; margin-bottom: 15px; font-size: 20px; color: #2d3748;">Illustration on a Turbofan engine</h1>
+    <div class="controls">
+      <div class="speed-control">
+        <label for="speedSlider">Speed:</label>
+        <input type="range" id="speedSlider" min="0.5" max="3" step="0.5" value="1">
+      </div>
+      <div class="checkbox-control">
+        <input type="checkbox" id="labelsToggle" checked>
+        <label for="labelsToggle">Labels</label>
+      </div>
+    </div>
+    
+    <div class="engine-container">
+      <svg id="engineSvg" viewBox="0 0 800 300"></svg>
+    </div>
+    
+    <div id="infoPanel" class="info-panel">
+      <div class="info-header">
+        <h3 id="infoTitle" class="info-title">Component Name</h3>
+        <button id="closeInfoBtn" class="close-btn">×</button>
+      </div>
+      <p id="infoDescription" class="info-description">Component description will appear here.</p>
+    </div>
+    
+    <div class="footer">
+      <h4>Interactive Features:</h4>
+      <ul>
+        <li>Tap on any engine component to view detailed information</li>
+        <li>Adjust the speed slider to change airflow velocity</li>
+        <li>Toggle labels on/off for a clearer view</li>
+      </ul>
+      <div class="color-key">
+        <p>Temperature and Airflow Key:</p>
+        <div class="color-item">
+          <div class="color-box color-blue-light"></div>
+          <span>Cool bypass air (majority of thrust, 70-90%)</span>
+        </div>
+        <div class="color-item">
+          <div class="color-box color-blue-dark"></div>
+          <span>Core inlet air before combustion</span>
+        </div>
+        <div class="color-item">
+          <div class="color-box color-red"></div>
+          <span>Hot gas after combustion (through turbines and exhaust)</span>
+        </div>
+      </div>
+      <p class="note">Note: The engine core is enclosed in a transparent casing showing three distinct sections: the compressor section (blue-tinted), combustion section (red-tinted), and turbine section (orange-tinted).</p>
+      <p class="copyright" style="margin-top: 15px; text-align: center; font-size: 12px; color: #4a5568;">Copyright © 2025 Dragonrise Aviation Academy, All rights reserved.</p>
+    </div>
+  </div>
+
+  <script>
+    // Engine animation script
+    (function() {
+      // Constants
+      const bypassAirColor = "#ADD8E6"; // Light blue for cold air
+      const coreAirColorCold = "#4682B4"; // Steel blue for intake air
+      const coreAirColorHot = "#FF4500"; // Orange-red for hot exhaust gases
+      const flameColor = "#FFFF00"; // Yellow for combustion
+      
+      // Component information
+      const componentInfo = {
+        fan: {
+          title: "Fan",
+          description: "The large fan at the front of the engine draws in large quantities of air. Most of this air bypasses the core of the engine (visible as blue bypass flow), providing 70-80% of the total thrust in modern high-bypass engines."
+        },
+        lowPressureCompressor: {
+          title: "Low Pressure Compressor",
+          description: "Located in the compressor section of the core engine (blue-tinted transparent housing), this first stage compressor increases the pressure of the core air."
+        },
+        highPressureCompressor: {
+          title: "High Pressure Compressor",
+          description: "Also within the compressor section (blue-tinted transparent housing), multiple stages of compressor blades progressively compress the core air, significantly increasing its pressure and temperature before it enters the combustion chamber."
+        },
+        combustionChamber: {
+          title: "Combustion Chamber",
+          description: "Located in the combustion section (red-tinted transparent housing), fuel is injected into the highly compressed hot air and ignited. The resulting rapid expansion of gases drives the turbines."
+        },
+        highPressureTurbine: {
+          title: "High Pressure Turbine",
+          description: "Located in the turbine section (orange-tinted transparent housing), this turbine is driven by the high-energy gas flow (orange-red particles) from the combustion chamber."
+        },
+        lowPressureTurbine: {
+          title: "Low Pressure Turbine",
+          description: "Also in the turbine section (orange-tinted transparent housing), this turbine extracts more energy from the hot gas flow (orange-red particles) as it expands."
+        },
+        exhaustNozzle: {
+          title: "Exhaust Nozzle",
+          description: "The remaining high-speed hot gases (orange-red particles) exit through the exhaust nozzle, contributing to the engine's thrust."
+        },
+        bypassDuct: {
+          title: "Bypass Duct",
+          description: "The bypass air (light blue particles) flows through this duct around the engine core. This bypass air remains relatively cool compared to the hot air going through the core's transparent casing."
+        }
+      };
+      
+      // Animation state
+      let isPlaying = true;
+      let airflowSpeed = 1;
+      let showLabels = true;
+      let time = 0;
+      let animationFrame;
+      let selectedComponent = null;
+      
+      // DOM elements
+      const svg = document.getElementById('engineSvg');
+      const speedSlider = document.getElementById('speedSlider');
+      const labelsToggle = document.getElementById('labelsToggle');
+      const infoPanel = document.getElementById('infoPanel');
+      const infoTitle = document.getElementById('infoTitle');
+      const infoDescription = document.getElementById('infoDescription');
+      const closeInfoBtn = document.getElementById('closeInfoBtn');
+      
+      // Universal interaction handler for both touch and click events
+      function addInteraction(element, componentId) {
+        // Function to handle both click and touch
+        function interactionHandler(e) {
+          // Prevent default behavior to avoid issues on touch devices
+          if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          showComponentInfo(componentId);
+          return false;
+        }
+        
+        // Add both touch and click event listeners
+        element.addEventListener('touchstart', interactionHandler, { passive: false });
+        element.addEventListener('click', interactionHandler);
+        
+        // Add visual feedback for touch interactions
+        element.addEventListener('touchstart', function() {
+          this.style.opacity = '0.7';
+        }, { passive: true });
+        
+        element.addEventListener('touchend', function() {
+          this.style.opacity = '1';
+        }, { passive: true });
+      }
+      
+      // Animation helpers
+      const getAirflowOffset = (multiplier = 1) => (time * multiplier) % 1;
+      const getFanRotation = () => time * 180;
+      const getCompressorRotation = () => time * 240;
+      const getTurbineRotation = () => time * 300;
+      const getFlameAnimation = () => Math.sin(time * 10) * 2 + 10;
+      
+      // Event listeners with passive option for better performance
+      labelsToggle.addEventListener('change', toggleLabels, { passive: true });
+      speedSlider.addEventListener('input', updateSpeed, { passive: true });
+      
+      // Make close button work on both touch and click
+      closeInfoBtn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        closeInfoPanel();
+      });
+      closeInfoBtn.addEventListener('click', closeInfoPanel);
+      
+      // Function to update speed
+      function updateSpeed() {
+        airflowSpeed = parseFloat(speedSlider.value);
+      }
+      
+      // Function to toggle labels
+      function toggleLabels() {
+        showLabels = labelsToggle.checked;
+        renderEngine();
+      }
+      
+      // Function to show component info
+      function showComponentInfo(componentId) {
+        if (componentInfo[componentId]) {
+          selectedComponent = componentId;
+          infoTitle.textContent = componentInfo[componentId].title;
+          infoDescription.textContent = componentInfo[componentId].description;
+          infoPanel.classList.add('active');
+        }
+      }
+      
+      // Function to close info panel
+      function closeInfoPanel(e) {
+        if (e) {
+          e.preventDefault();
+        }
+        selectedComponent = null;
+        infoPanel.classList.remove('active');
+      }
+      
+      // Main animation loop
+      function animate() {
+        if (isPlaying) {
+          time += 0.01 * airflowSpeed;
+        }
+        renderEngine();
+        animationFrame = requestAnimationFrame(animate);
+      }
+      
+      // Render the engine SVG
+      function renderEngine() {
+        // Clear existing content
+        svg.innerHTML = '';
+        
+        // Engine casing outline
+        appendPath(svg, "M100,100 L150,75 L600,75 L650,100 L650,200 L600,225 L150,225 L100,200 Z", {
+          fill: "#2F3542",
+          stroke: "#1E293B",
+          strokeWidth: 2
+        });
+        
+        // Bypass duct
+        const bypassDuct = appendPath(svg, "M100,100 L150,75 L600,75 L650,100 L650,200 L600,225 L150,225 L100,200 Z M150,110 L190,95 L580,95 L620,110 L620,190 L580,205 L190,205 L150,190 Z", {
+          fill: "#3F485A",
+          stroke: "#1E293B",
+          strokeWidth: 1,
+          class: "clickable"
+        });
+        addInteraction(bypassDuct, 'bypassDuct');
+        
+        // Bypass flow area
+        appendPath(svg, "M150,110 L190,95 L580,95 L620,110 L620,190 L580,205 L190,205 L150,190 Z M150,130 L185,122 L575,122 L610,130 L610,170 L575,178 L185,178 L150,170 Z", {
+          fill: "#2F3542",
+          stroke: "#2F3542",
+          strokeWidth: 1
+        });
+        
+        // Transparent casing around core
+        appendPath(svg, "M150,130 L185,122 L575,122 L610,130 L610,170 L575,178 L185,178 L150,170 Z", {
+          fill: "rgba(31, 41, 55, 0.7)",
+          stroke: "#3E546A",
+          strokeWidth: 1.5,
+          strokeDasharray: "4,2"
+        });
+        
+        // Core flow paths
+        appendPath(svg, "M160,135 L190,130 L310,130 L310,170 L190,170 L160,165 Z", {
+          fill: "#1B2234",
+          stroke: "#2C3E50",
+          strokeWidth: 1
+        });
+        
+        appendPath(svg, "M310,130 L450,130 L450,170 L310,170 Z", {
+          fill: "#2C3E50",
+          stroke: "#2C3E50",
+          strokeWidth: 1
+        });
+        
+        appendPath(svg, "M450,130 L580,130 L580,170 L450,170 Z", {
+          fill: "#241f1f",
+          stroke: "#2C3E50",
+          strokeWidth: 1
+        });
+        
+        // Core engine sections
+        const sectionsGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        
+        // Compressor section
+        appendPath(sectionsGroup, "M160,125 L190,120 L310,120 L310,180 L190,180 L160,175 Z", {
+          fill: "rgba(31, 77, 114, 0.2)",
+          stroke: "#4682B4",
+          strokeWidth: 1,
+          strokeDasharray: "3,2"
+        });
+        
+        const compressorText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        compressorText.setAttribute("x", "235");
+        compressorText.setAttribute("y", "117");
+        compressorText.setAttribute("text-anchor", "middle");
+        compressorText.setAttribute("fill", "white");
+        compressorText.setAttribute("font-size", "9");
+        compressorText.setAttribute("font-weight", "bold");
+        compressorText.textContent = "COMPRESSOR SECTION";
+        sectionsGroup.appendChild(compressorText);
+        
+        // Combustion section
+        appendPath(sectionsGroup, "M310,120 L450,120 L450,180 L310,180 Z", {
+          fill: "rgba(114, 47, 55, 0.2)",
+          stroke: "#FF4500",
+          strokeWidth: 1,
+          strokeDasharray: "3,2"
+        });
+        
+        const combustionText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        combustionText.setAttribute("x", "380");
+        combustionText.setAttribute("y", "117");
+        combustionText.setAttribute("text-anchor", "middle");
+        combustionText.setAttribute("fill", "white");
+        combustionText.setAttribute("font-size", "9");
+        combustionText.setAttribute("font-weight", "bold");
+        combustionText.textContent = "COMBUSTION";
+        sectionsGroup.appendChild(combustionText);
+        
+        // Turbine section
+        appendPath(sectionsGroup, "M450,120 L580,120 L580,180 L450,180 Z", {
+          fill: "rgba(114, 58, 31, 0.2)",
+          stroke: "#FF4500",
+          strokeWidth: 1,
+          strokeDasharray: "3,2"
+        });
+        
+        const turbineText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        turbineText.setAttribute("x", "515");
+        turbineText.setAttribute("y", "117");
+        turbineText.setAttribute("text-anchor", "middle");
+        turbineText.setAttribute("fill", "white");
+        turbineText.setAttribute("font-size", "9");
+        turbineText.setAttribute("font-weight", "bold");
+        turbineText.textContent = "TURBINE SECTION";
+        sectionsGroup.appendChild(turbineText);
+        
+        svg.appendChild(sectionsGroup);
+        
+        // Fan - increased radius for better touch target
+        const fanCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        fanCircle.setAttribute("cx", "120");
+        fanCircle.setAttribute("cy", "150");
+        fanCircle.setAttribute("r", "20");
+        fanCircle.setAttribute("fill", "#1E293B");
+        fanCircle.setAttribute("stroke", "#475569");
+        fanCircle.setAttribute("stroke-width", "1");
+        fanCircle.setAttribute("class", "clickable");
+        addInteraction(fanCircle, 'fan');
+        svg.appendChild(fanCircle);
+        
+        // Fan blades
+        for (let i = 0; i < 8; i++) {
+          const angle = (i * 45 + getFanRotation()) % 360;
+          const radians = angle * Math.PI / 180;
+          const outerX = 120 + Math.cos(radians) * 55;
+          const outerY = 150 + Math.sin(radians) * 55;
+          
+          const blade = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          blade.setAttribute("x1", "120");
+          blade.setAttribute("y1", "150");
+          blade.setAttribute("x2", outerX);
+          blade.setAttribute("y2", outerY);
+          blade.setAttribute("stroke", "#94A3B8");
+          blade.setAttribute("stroke-width", "3");
+          blade.setAttribute("stroke-linecap", "round");
+          svg.appendChild(blade);
+        }
+        
+        const fanHub = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        fanHub.setAttribute("cx", "120");
+        fanHub.setAttribute("cy", "150");
+        fanHub.setAttribute("r", "6");
+        fanHub.setAttribute("fill", "#64748B");
+        fanHub.setAttribute("stroke", "#475569");
+        fanHub.setAttribute("stroke-width", "1");
+        svg.appendChild(fanHub);
+        
+        // Low pressure compressor - increased radius for better touch target
+        const lpcCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        lpcCircle.setAttribute("cx", "200");
+        lpcCircle.setAttribute("cy", "150");
+        lpcCircle.setAttribute("r", "15");
+        lpcCircle.setAttribute("fill", "#1E293B");
+        lpcCircle.setAttribute("stroke", "#475569");
+        lpcCircle.setAttribute("stroke-width", "1");
+        lpcCircle.setAttribute("class", "clickable");
+        addInteraction(lpcCircle, 'lowPressureCompressor');
+        svg.appendChild(lpcCircle);
+        
+        // LPC blades
+        for (let i = 0; i < 6; i++) {
+          const angle = (i * 60 + getCompressorRotation()) % 360;
+          const radians = angle * Math.PI / 180;
+          const outerX = 200 + Math.cos(radians) * 40;
+          const outerY = 150 + Math.sin(radians) * 40;
+          
+          const blade = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          blade.setAttribute("x1", "200");
+          blade.setAttribute("y1", "150");
+          blade.setAttribute("x2", outerX);
+          blade.setAttribute("y2", outerY);
+          blade.setAttribute("stroke", "#94A3B8");
+          blade.setAttribute("stroke-width", "2");
+          blade.setAttribute("stroke-linecap", "round");
+          svg.appendChild(blade);
+        }
+        
+        const lpcHub = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        lpcHub.setAttribute("cx", "200");
+        lpcHub.setAttribute("cy", "150");
+        lpcHub.setAttribute("r", "4");
+        lpcHub.setAttribute("fill", "#64748B");
+        lpcHub.setAttribute("stroke", "#475569");
+        lpcHub.setAttribute("stroke-width", "1");
+        svg.appendChild(lpcHub);
+        
+        // High pressure compressor - increased radius for better touch target
+        const hpcCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        hpcCircle.setAttribute("cx", "260");
+        hpcCircle.setAttribute("cy", "150");
+        hpcCircle.setAttribute("r", "15");
+        hpcCircle.setAttribute("fill", "#1E293B");
+        hpcCircle.setAttribute("stroke", "#475569");
+        hpcCircle.setAttribute("stroke-width", "1");
+        hpcCircle.setAttribute("class", "clickable");
+        addInteraction(hpcCircle, 'highPressureCompressor');
+        svg.appendChild(hpcCircle);
+        
+        // HPC blades
+        for (let i = 0; i < 7; i++) {
+          const angle = (i * 51.4 + getCompressorRotation() * 1.2) % 360;
+          const radians = angle * Math.PI / 180;
+          const outerX = 260 + Math.cos(radians) * 37;
+          const outerY = 150 + Math.sin(radians) * 37;
+          
+          const blade = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          blade.setAttribute("x1", "260");
+          blade.setAttribute("y1", "150");
+          blade.setAttribute("x2", outerX);
+          blade.setAttribute("y2", outerY);
+          blade.setAttribute("stroke", "#94A3B8");
+          blade.setAttribute("stroke-width", "2");
+          blade.setAttribute("stroke-linecap", "round");
+          svg.appendChild(blade);
+        }
+        
+        const hpcHub = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        hpcHub.setAttribute("cx", "260");
+        hpcHub.setAttribute("cy", "150");
+        hpcHub.setAttribute("r", "5");
+        hpcHub.setAttribute("fill", "#64748B");
+        hpcHub.setAttribute("stroke", "#475569");
+        hpcHub.setAttribute("stroke-width", "1");
+        svg.appendChild(hpcHub);
+        
+        // Combustion chamber
+        const combustionChamber = appendPath(svg, "M320,113 L440,113 Q450,130 450,150 Q450,170 440,187 L320,187 Q310,170 310,150 Q310,130 320,113 Z", {
+          fill: "#374151",
+          stroke: "#1E293B",
+          strokeWidth: 1,
+          class: "clickable"
+        });
+        addInteraction(combustionChamber, 'combustionChamber');
+        
+        // Fuel injector
+        const fuelInjector = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        fuelInjector.setAttribute("x", "325");
+        fuelInjector.setAttribute("y", "140");
+        fuelInjector.setAttribute("width", "15");
+        fuelInjector.setAttribute("height", "20");
+        fuelInjector.setAttribute("fill", "#64748B");
+        svg.appendChild(fuelInjector);
+        
+        const fuelNozzle = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        fuelNozzle.setAttribute("x", "340");
+        fuelNozzle.setAttribute("y", "145");
+        fuelNozzle.setAttribute("width", "5");
+        fuelNozzle.setAttribute("height", "10");
+        fuelNozzle.setAttribute("fill", "#475569");
+        svg.appendChild(fuelNozzle);
+        
+        // Flames
+        const flamePath1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        flamePath1.setAttribute("d", `M345,150 Q370,${150 - getFlameAnimation()} 395,150 Q420,${150 + getFlameAnimation()} 445,150`);
+        flamePath1.setAttribute("fill", "none");
+        flamePath1.setAttribute("stroke", flameColor);
+        flamePath1.setAttribute("stroke-width", "17");
+        flamePath1.setAttribute("opacity", "0.8");
+        svg.appendChild(flamePath1);
+        
+        const flamePath2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        flamePath2.setAttribute("d", `M345,150 Q370,${150 + getFlameAnimation()} 395,150 Q420,${150 - getFlameAnimation()} 445,150`);
+        flamePath2.setAttribute("fill", "none");
+        flamePath2.setAttribute("stroke", coreAirColorHot);
+        flamePath2.setAttribute("stroke-width", "10");
+        flamePath2.setAttribute("opacity", "0.6");
+        svg.appendChild(flamePath2);
+        
+        // High pressure turbine - increased radius for better touch
+        const hptCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        hptCircle.setAttribute("cx", "480");
+        hptCircle.setAttribute("cy", "150");
+        hptCircle.setAttribute("r", "15");
+        hptCircle.setAttribute("fill", "#1E293B");
+        hptCircle.setAttribute("stroke", "#475569");
+        hptCircle.setAttribute("stroke-width", "1");
+        hptCircle.setAttribute("class", "clickable");
+        addInteraction(hptCircle, 'highPressureTurbine');
+        svg.appendChild(hptCircle);
+        
+        // HPT blades
+        for (let i = 0; i < 6; i++) {
+          const angle = (i * 60 + getTurbineRotation() * -1) % 360;
+          const radians = angle * Math.PI / 180;
+          const outerX = 480 + Math.cos(radians) * 35;
+          const outerY = 150 + Math.sin(radians) * 35;
+          
+          const blade = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          blade.setAttribute("x1", "480");
+          blade.setAttribute("y1", "150");
+          blade.setAttribute("x2", outerX);
+          blade.setAttribute("y2", outerY);
+          blade.setAttribute("stroke", "#94A3B8");
+          blade.setAttribute("stroke-width", "2");
+          blade.setAttribute("stroke-linecap", "round");
+          svg.appendChild(blade);
+        }
+        
+        const hptHub = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        hptHub.setAttribute("cx", "480");
+        hptHub.setAttribute("cy", "150");
+        hptHub.setAttribute("r", "4");
+        hptHub.setAttribute("fill", "#64748B");
+        hptHub.setAttribute("stroke", "#475569");
+        hptHub.setAttribute("stroke-width", "1");
+        svg.appendChild(hptHub);
+        
+        // Low pressure turbine - increased radius for better touch
+        const lptCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        lptCircle.setAttribute("cx", "540");
+        lptCircle.setAttribute("cy", "150");
+        lptCircle.setAttribute("r", "15");
+        lptCircle.setAttribute("fill", "#1E293B");
+        lptCircle.setAttribute("stroke", "#475569");
+        lptCircle.setAttribute("stroke-width", "1");
+        lptCircle.setAttribute("class", "clickable");
+        addInteraction(lptCircle, 'lowPressureTurbine');
+        svg.appendChild(lptCircle);
+        
+        // LPT blades
+        for (let i = 0; i < 7; i++) {
+          const angle = (i * 51.4 + getTurbineRotation() * -0.8) % 360;
+          const radians = angle * Math.PI / 180;
+          const outerX = 540 + Math.cos(radians) * 35;
+          const outerY = 150 + Math.sin(radians) * 35;
+          
+          const blade = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          blade.setAttribute("x1", "540");
+          blade.setAttribute("y1", "150");
+          blade.setAttribute("x2", outerX);
+          blade.setAttribute("y2", outerY);
+          blade.setAttribute("stroke", "#94A3B8");
+          blade.setAttribute("stroke-width", "2");
+          blade.setAttribute("stroke-linecap", "round");
+          svg.appendChild(blade);
+        }
+        
+        const lptHub = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        lptHub.setAttribute("cx", "540");
+        lptHub.setAttribute("cy", "150");
+        lptHub.setAttribute("r", "4");
+        lptHub.setAttribute("fill", "#64748B");
+        lptHub.setAttribute("stroke", "#475569");
+        lptHub.setAttribute("stroke-width", "1");
+        svg.appendChild(lptHub);
+        
+        // Exhaust nozzle
+        const exhaustNozzle = appendPath(svg, "M600,95 L650,75 L700,75 L700,225 L650,225 L600,205 Z", {
+          fill: "#2F3542",
+          stroke: "#1E293B",
+          strokeWidth: 1,
+          class: "clickable"
+        });
+        addInteraction(exhaustNozzle, 'exhaustNozzle');
+        
+        // Engine shaft
+        const shaft = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        shaft.setAttribute("x1", "120");
+        shaft.setAttribute("y1", "150");
+        shaft.setAttribute("x2", "620");
+        shaft.setAttribute("y2", "150");
+        shaft.setAttribute("stroke", "#94A3B8");
+        shaft.setAttribute("stroke-width", "2");
+        svg.appendChild(shaft);
+        
+        // Cold airflow animation in bypass
+        const bypassGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        bypassGroup.setAttribute("opacity", "0.9");
+        
+        for (let i = 0; i < 20; i++) {
+          const offset = (i / 20 + getAirflowOffset(0.5)) % 1;
+          const x = 150 + offset * 470;
+          
+          const particleGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          particleGroup.setAttribute("opacity", 0.9 - offset * 0.3);
+          
+          // Create particles throughout the bypass duct
+          for (let j = 0; j < 5; j++) {
+            // Calculate positions that stay within the bypass duct
+            const ratio = j / 4;
+            const topWall = 102 + (ratio * 15);
+            const bottomWall = 198 - (ratio * 15);
+            
+            // Distribute particles across the height of the duct
+            const topY = topWall + (ratio * 20);
+            const bottomY = bottomWall - (ratio * 20);
+            
+            const topParticle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            topParticle.setAttribute("cx", x);
+            topParticle.setAttribute("cy", topY);
+            topParticle.setAttribute("r", "2.5");
+            topParticle.setAttribute("fill", bypassAirColor);
+            particleGroup.appendChild(topParticle);
+            
+            const bottomParticle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            bottomParticle.setAttribute("cx", x);
+            bottomParticle.setAttribute("cy", bottomY);
+            bottomParticle.setAttribute("r", "2.5");
+            bottomParticle.setAttribute("fill", bypassAirColor);
+            particleGroup.appendChild(bottomParticle);
+          }
+          
+          bypassGroup.appendChild(particleGroup);
+        }
+        
+        svg.appendChild(bypassGroup);
+        
+        // Core airflow animation (pre-combustion)
+        const preGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        
+        for (let i = 0; i < 10; i++) {
+          const offset = (i / 10 + getAirflowOffset(0.7)) % 1;
+          // Only show cool air in compressor section - stops at combustion chamber
+          const x = 160 + offset * 150;
+          
+          // Don't show blue particles past combustion chamber entry
+          if (x <= 310) {
+            const particle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            particle.setAttribute("cx", x);
+            particle.setAttribute("cy", "150");
+            particle.setAttribute("r", "3");
+            particle.setAttribute("fill", coreAirColorCold);
+            particle.setAttribute("opacity", "0.9");
+            preGroup.appendChild(particle);
+          }
+        }
+        
+        svg.appendChild(preGroup);
+        
+        // Hot gas flow post-combustion
+        const postGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        
+        for (let i = 0; i < 18; i++) {
+          const offset = (i / 18 + getAirflowOffset(1.1)) % 1;
+          // Cover from combustion chamber through turbines and to exit
+          const x = 400 + offset * 250;
+          // Randomize y position slightly to fill the path
+          const yRandom = Math.sin(i * 0.5) * 10;
+          
+          const particle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          particle.setAttribute("cx", x);
+          particle.setAttribute("cy", 150 + yRandom);
+          particle.setAttribute("r", 3.5 - (offset * 1)); // Particles get slightly smaller toward exit
+          particle.setAttribute("fill", coreAirColorHot);
+          particle.setAttribute("opacity", 1 - (offset * 0.2));
+          postGroup.appendChild(particle);
+        }
+        
+        svg.appendChild(postGroup);
+        
+        // Labels
+        if (showLabels) {
+          const labelsGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          
+          // Fan label
+          const fanLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          fanLabel.setAttribute("x", "120");
+          fanLabel.setAttribute("y", "25");
+          fanLabel.setAttribute("text-anchor", "middle");
+          fanLabel.setAttribute("fill", "white");
+          fanLabel.setAttribute("font-weight", "bold");
+          fanLabel.setAttribute("font-size", "11");
+          fanLabel.textContent = "Fan";
+          labelsGroup.appendChild(fanLabel);
+          
+          const fanLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          fanLine.setAttribute("x1", "120");
+          fanLine.setAttribute("y1", "30");
+          fanLine.setAttribute("x2", "120");
+          fanLine.setAttribute("y2", "70");
+          fanLine.setAttribute("stroke", "white");
+          fanLine.setAttribute("stroke-width", "1");
+          fanLine.setAttribute("stroke-dasharray", "2,2");
+          labelsGroup.appendChild(fanLine);
+          
+          // LPC label
+          const lpcLabel1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          lpcLabel1.setAttribute("x", "180");
+          lpcLabel1.setAttribute("y", "25");
+          lpcLabel1.setAttribute("text-anchor", "middle");
+          lpcLabel1.setAttribute("fill", "white");
+          lpcLabel1.setAttribute("font-weight", "bold");
+          lpcLabel1.setAttribute("font-size", "11");
+          lpcLabel1.textContent = "Low Pressure";
+          labelsGroup.appendChild(lpcLabel1);
+          
+          const lpcLabel2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          lpcLabel2.setAttribute("x", "180");
+          lpcLabel2.setAttribute("y", "40");
+          lpcLabel2.setAttribute("text-anchor", "middle");
+          lpcLabel2.setAttribute("fill", "white");
+          lpcLabel2.setAttribute("font-weight", "bold");
+          lpcLabel2.setAttribute("font-size", "11");
+          lpcLabel2.textContent = "Compressor";
+          labelsGroup.appendChild(lpcLabel2);
+          
+          const lpcLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          lpcLine.setAttribute("x1", "180");
+          lpcLine.setAttribute("y1", "45");
+          lpcLine.setAttribute("x2", "190");
+          lpcLine.setAttribute("y2", "90");
+          lpcLine.setAttribute("stroke", "white");
+          lpcLine.setAttribute("stroke-width", "1");
+          lpcLine.setAttribute("stroke-dasharray", "2,2");
+          labelsGroup.appendChild(lpcLine);
+          
+          // HPC label
+          const hpcLabel1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          hpcLabel1.setAttribute("x", "290");
+          hpcLabel1.setAttribute("y", "25");
+          hpcLabel1.setAttribute("text-anchor", "middle");
+          hpcLabel1.setAttribute("fill", "white");
+          hpcLabel1.setAttribute("font-weight", "bold");
+          hpcLabel1.setAttribute("font-size", "11");
+          hpcLabel1.textContent = "High Pressure";
+          labelsGroup.appendChild(hpcLabel1);
+          
+          const hpcLabel2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          hpcLabel2.setAttribute("x", "290");
+          hpcLabel2.setAttribute("y", "40");
+          hpcLabel2.setAttribute("text-anchor", "middle");
+          hpcLabel2.setAttribute("fill", "white");
+          hpcLabel2.setAttribute("font-weight", "bold");
+          hpcLabel2.setAttribute("font-size", "11");
+          hpcLabel2.textContent = "Compressor";
+          labelsGroup.appendChild(hpcLabel2);
+          
+          const hpcLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          hpcLine.setAttribute("x1", "290");
+          hpcLine.setAttribute("y1", "45");
+          hpcLine.setAttribute("x2", "270");
+          hpcLine.setAttribute("y2", "90");
+          hpcLine.setAttribute("stroke", "white");
+          hpcLine.setAttribute("stroke-width", "1");
+          hpcLine.setAttribute("stroke-dasharray", "2,2");
+          labelsGroup.appendChild(hpcLine);
+          
+          // Combustion chamber label
+          const ccLabel1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          ccLabel1.setAttribute("x", "380");
+          ccLabel1.setAttribute("y", "25");
+          ccLabel1.setAttribute("text-anchor", "middle");
+          ccLabel1.setAttribute("fill", "white");
+          ccLabel1.setAttribute("font-weight", "bold");
+          ccLabel1.setAttribute("font-size", "11");
+          ccLabel1.textContent = "Combustion";
+          labelsGroup.appendChild(ccLabel1);
+          
+          const ccLabel2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          ccLabel2.setAttribute("x", "380");
+          ccLabel2.setAttribute("y", "40");
+          ccLabel2.setAttribute("text-anchor", "middle");
+          ccLabel2.setAttribute("fill", "white");
+          ccLabel2.setAttribute("font-weight", "bold");
+          ccLabel2.setAttribute("font-size", "11");
+          ccLabel2.textContent = "Chamber";
+          labelsGroup.appendChild(ccLabel2);
+          
+          const ccLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          ccLine.setAttribute("x1", "380");
+          ccLine.setAttribute("y1", "45");
+          ccLine.setAttribute("x2", "380");
+          ccLine.setAttribute("y2", "100");
+          ccLine.setAttribute("stroke", "white");
+          ccLine.setAttribute("stroke-width", "1");
+          ccLine.setAttribute("stroke-dasharray", "2,2");
+          labelsGroup.appendChild(ccLine);
+          
+          // Exhaust nozzle label
+          const enLabel1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          enLabel1.setAttribute("x", "670");
+          enLabel1.setAttribute("y", "25");
+          enLabel1.setAttribute("text-anchor", "middle");
+          enLabel1.setAttribute("fill", "white");
+          enLabel1.setAttribute("font-weight", "bold");
+          enLabel1.setAttribute("font-size", "11");
+          enLabel1.textContent = "Exhaust";
+          labelsGroup.appendChild(enLabel1);
+          
+          const enLabel2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          enLabel2.setAttribute("x", "670");
+          enLabel2.setAttribute("y", "40");
+          enLabel2.setAttribute("text-anchor", "middle");
+          enLabel2.setAttribute("fill", "white");
+          enLabel2.setAttribute("font-weight", "bold");
+          enLabel2.setAttribute("font-size", "11");
+          enLabel2.textContent = "Nozzle";
+          labelsGroup.appendChild(enLabel2);
+          
+          const enLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          enLine.setAttribute("x1", "670");
+          enLine.setAttribute("y1", "45");
+          enLine.setAttribute("x2", "650");
+          enLine.setAttribute("y2", "90");
+          enLine.setAttribute("stroke", "white");
+          enLine.setAttribute("stroke-width", "1");
+          enLine.setAttribute("stroke-dasharray", "2,2");
+          labelsGroup.appendChild(enLine);
+          
+          // Fuel injector label
+          const fiLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          fiLabel.setAttribute("x", "325");
+          fiLabel.setAttribute("y", "250");
+          fiLabel.setAttribute("text-anchor", "end");
+          fiLabel.setAttribute("fill", "white");
+          fiLabel.setAttribute("font-weight", "bold");
+          fiLabel.setAttribute("font-size", "11");
+          fiLabel.textContent = "Fuel Injector";
+          labelsGroup.appendChild(fiLabel);
+          
+          const fiLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          fiLine.setAttribute("x1", "325");
+          fiLine.setAttribute("y1", "245");
+          fiLine.setAttribute("x2", "325");
+          fiLine.setAttribute("y2", "170");
+          fiLine.setAttribute("stroke", "white");
+          fiLine.setAttribute("stroke-width", "1");
+          fiLine.setAttribute("stroke-dasharray", "2,2");
+          labelsGroup.appendChild(fiLine);
+          
+          // HPT label
+          const hptLabel1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          hptLabel1.setAttribute("x", "430");
+          hptLabel1.setAttribute("y", "250");
+          hptLabel1.setAttribute("text-anchor", "end");
+          hptLabel1.setAttribute("fill", "white");
+          hptLabel1.setAttribute("font-weight", "bold");
+          hptLabel1.setAttribute("font-size", "11");
+          hptLabel1.textContent = "High Pressure";
+          labelsGroup.appendChild(hptLabel1);
+          
+          const hptLabel2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          hptLabel2.setAttribute("x", "430");
+          hptLabel2.setAttribute("y", "265");
+          hptLabel2.setAttribute("text-anchor", "end");
+          hptLabel2.setAttribute("fill", "white");
+          hptLabel2.setAttribute("font-weight", "bold");
+          hptLabel2.setAttribute("font-size", "11");
+          hptLabel2.textContent = "Turbine";
+          labelsGroup.appendChild(hptLabel2);
+          
+          const hptLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          hptLine.setAttribute("x1", "430");
+          hptLine.setAttribute("y1", "245");
+          hptLine.setAttribute("x2", "465");
+          hptLine.setAttribute("y2", "190");
+          hptLine.setAttribute("stroke", "white");
+          hptLine.setAttribute("stroke-width", "1");
+          hptLine.setAttribute("stroke-dasharray", "2,2");
+          labelsGroup.appendChild(hptLine);
+          
+          // LPT label
+          const lptLabel1 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          lptLabel1.setAttribute("x", "600");
+          lptLabel1.setAttribute("y", "250");
+          lptLabel1.setAttribute("text-anchor", "start");
+          lptLabel1.setAttribute("fill", "white");
+          lptLabel1.setAttribute("font-weight", "bold");
+          lptLabel1.setAttribute("font-size", "11");
+          lptLabel1.textContent = "Low Pressure";
+          labelsGroup.appendChild(lptLabel1);
+          
+          const lptLabel2 = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          lptLabel2.setAttribute("x", "600");
+          lptLabel2.setAttribute("y", "265");
+          lptLabel2.setAttribute("text-anchor", "start");
+          lptLabel2.setAttribute("fill", "white");
+          lptLabel2.setAttribute("font-weight", "bold");
+          lptLabel2.setAttribute("font-size", "11");
+          lptLabel2.textContent = "Turbine";
+          labelsGroup.appendChild(lptLabel2);
+          
+          const lptLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          lptLine.setAttribute("x1", "600");
+          lptLine.setAttribute("y1", "245");
+          lptLine.setAttribute("x2", "560");
+          lptLine.setAttribute("y2", "190");
+          lptLine.setAttribute("stroke", "white");
+          lptLine.setAttribute("stroke-width", "1");
+          lptLine.setAttribute("stroke-dasharray", "2,2");
+          labelsGroup.appendChild(lptLine);
+          
+          // Airflow labels and arrows
+          // Core flow label
+          const coreFlowLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          coreFlowLabel.setAttribute("x", "245");
+          coreFlowLabel.setAttribute("y", "280");
+          coreFlowLabel.setAttribute("text-anchor", "middle");
+          coreFlowLabel.setAttribute("fill", "white");
+          coreFlowLabel.setAttribute("font-weight", "bold");
+          coreFlowLabel.setAttribute("font-size", "12");
+          coreFlowLabel.textContent = "Core Flow (Hot)";
+          labelsGroup.appendChild(coreFlowLabel);
+          
+          const coreFlowArrow = appendPath(labelsGroup, "M245,275 L275,275 L275,255 L295,255 L275,240 L295,255 L275,270 Z", {
+            fill: coreAirColorHot
+          });
+          
+          // Bypass flow label
+          const bypassFlowLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          bypassFlowLabel.setAttribute("x", "500");
+          bypassFlowLabel.setAttribute("y", "20");
+          bypassFlowLabel.setAttribute("text-anchor", "middle");
+          bypassFlowLabel.setAttribute("fill", "white");
+          bypassFlowLabel.setAttribute("font-weight", "bold");
+          bypassFlowLabel.setAttribute("font-size", "12");
+          bypassFlowLabel.textContent = "Bypass Flow (Cold)";
+          labelsGroup.appendChild(bypassFlowLabel);
+          
+          const bypassFlowArrow = appendPath(labelsGroup, "M500,25 L500,50 L530,50 L510,40 L530,50 L510,60 Z", {
+            fill: bypassAirColor
+          });
+          
+          svg.appendChild(labelsGroup);
+        }
+      }
+      
+      // Helper function to create and append SVG path with attributes
+      function appendPath(parent, d, attrs = {}) {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", d);
+        
+        for (const [key, value] of Object.entries(attrs)) {
+          path.setAttribute(key, value);
+        }
+        
+        parent.appendChild(path);
+        return path;
+      }
+      
+      // Add touch optimization for mobile
+      function setupTouchInteractions() {
+        // Add CSS for better touch targets and visual feedback
+        const style = document.createElement('style');
+        style.textContent = `
+          .clickable {
+            cursor: pointer;
+            touch-action: manipulation;
+          }
+          .clickable:hover {
+            opacity: 0.9;
+          }
+          .clickable:active {
+            opacity: 0.7;
+          }
+          @media (max-width: 767px) {
+            .clickable {
+              stroke-width: 2px;
+            }
+            
+            /* Larger touch targets on mobile */
+            .close-btn {
+              padding: 10px;
+            }
+            
+            input[type="range"] {
+              height: 12px;
+            }
+            
+            input[type="range"]::-webkit-slider-thumb {
+              width: 24px;
+              height: 24px;
+            }
+            
+            input[type="checkbox"] {
+              transform: scale(1.3);
+            }
+          }
+        `;
+        document.head.appendChild(style);
+        
+        // Prevent zoom on double-tap for iOS
+        document.addEventListener('touchend', function(event) {
+          if (event.target.classList.contains('clickable')) {
+            event.preventDefault();
+          }
+        }, false);
+        
+        // Prevent page scrolling when interacting with the SVG
+        svg.addEventListener('touchmove', function(event) {
+          event.preventDefault();
+        }, { passive: false });
+      }
+      
+      // Initialize
+      setupTouchInteractions();
+      animate();
+    })();
+  </script>
+</body>
+</html>
